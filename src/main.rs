@@ -6,7 +6,8 @@ use tokio;
 
 #[tokio::main]
 async fn main() {
-    let urls = vec!["https://shopee.co.th/".to_string()];
+    let urls =
+        vec!["https://www.lazada.co.th/catalog/?spm=a2o4m.homepage.search.d_go&q=GPU".to_string()];
     // Scrape pages
     let raw_data = scraper::scrape_multiple_pages(urls).await;
 
