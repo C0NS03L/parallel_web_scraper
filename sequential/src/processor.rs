@@ -1,16 +1,15 @@
 use anyhow::Result;
-use rayon::prelude::*;
 use scraper::{Html, Selector};
 
-#[derive(Debug)]
 pub struct Item {
     pub name: String,
     pub link: String,
     pub price: String,
+    pub reviews: Vec<String>,
 }
 
 pub fn process_data(data: Vec<String>) -> Vec<Item> {
-    data.par_iter()
+    data.iter()
         .filter_map(|html| process_html(html).ok())
         .flatten()
         .collect()
@@ -50,9 +49,24 @@ fn process_html(html: &str) -> Result<Vec<Item>> {
             .to_string();
 
         if !name.is_empty() && !link.is_empty() && !price.is_empty() {
-            items.push(Item { name, link, price });
+            let reviews = scrape_reviews(&link)?;
+            items.push(Item {
+                name,
+                link,
+                price,
+                reviews,
+            });
         }
     }
 
     Ok(items)
+}
+
+fn scrape_reviews(product_url: &str) -> Result<Vec<String>> {
+    //TODO: Actual reviews :C
+    Ok(vec![
+        "Review 1".to_string(),
+        "Review 2".to_string(),
+        "Review 3".to_string(),
+    ])
 }
