@@ -1,13 +1,14 @@
-use serde::Serialize;
+use crate::processor::Item;
 
-#[derive(Serialize)]
-struct OutputData {
-    // Define your data structure here
-}
-
-pub fn format_data(data: Vec<String>) -> String {
-    // Convert data to OutputData struct
-    // This is a placeholder
-    let output = OutputData {};
-    serde_json::to_string_pretty(&output).unwrap()
+pub fn format_data(items: Vec<Item>) -> String {
+    items
+        .iter()
+        .map(|item| {
+            format!(
+                "Name: {}\nLink: {}\nPrice: {}\n",
+                item.name, item.link, item.price
+            )
+        })
+        .collect::<Vec<String>>()
+        .join("\n")
 }

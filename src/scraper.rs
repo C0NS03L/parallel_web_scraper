@@ -21,8 +21,8 @@ pub fn scrape_page(url: String) -> Result<String> {
     let content = tab
         .find_element("body")
         .map_err(|e| anyhow!("Failed to find body element: {}", e))?
-        .get_inner_text()
-        .map_err(|e| anyhow!("Failed to get inner HTML: {}", e))?;
+        .get_content()
+        .map_err(|e| anyhow!("Failed to get body content: {}", e))?;
 
     Ok(content)
 }
@@ -35,7 +35,7 @@ pub async fn scrape_multiple_pages(urls: Vec<String>) -> Vec<String> {
             let url_clone = url.clone();
             match tokio::task::spawn_blocking(move || scrape_page(url_clone)).await {
                 Ok(Ok(content)) => {
-                    println!("Scraped content: {}", content);
+                    // println!("Scraped content: {}", content);
                     results.push(content);
                     break;
                 }
