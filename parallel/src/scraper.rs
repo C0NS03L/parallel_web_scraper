@@ -27,29 +27,39 @@ pub fn scrape_page(url: String) -> Result<String> {
     Ok(content)
 }
 
+use std::sync::{Arc, Mutex};
+
 pub async fn scrape_multiple_pages(urls: Vec<String>) -> Vec<String> {
-    let mut results = Vec::new();
+    let results = Arc::new(Mutex::new(Vec::new()));
+    let mut tasks = Vec::new();
+
     for url in urls {
-        let mut retries = 3;
-        while retries > 0 {
-            let url_clone = url.clone();
-            match tokio::task::spawn_blocking(move || scrape_page(url_clone)).await {
-                Ok(Ok(content)) => {
-                    // println!("Scraped content: {}", content);
-                    results.push(content);
-                    break;
+        let results_clone = Arc::clone(&results);
+        tasks.push(tokio::spawn(async move {
+            let mut retries = 3;
+            while retries > 0 {
+                match scrape_page(url.clone()) {
+                    Ok(content) => {
+                        // println!("Scraped content: {}", content);
+                        results_clone.lock().unwrap().push(content);
+                        break;
+                    }
+                    Err(e) => {
+                        eprintln!("Error scraping page (retries left: {}): {:?}", retries, e);
+                        retries -= 1;
+                    }
                 }
-                Ok(Err(e)) => {
-                    eprintln!("Error scraping page (retries left: {}): {:?}", retries, e);
-                    retries -= 1;
-                }
-                Err(e) => {
-                    eprintln!("Task panicked (retries left: {}): {:?}", retries, e);
-                    retries -= 1;
-                }
+                tokio::time::sleep(Duration::from_secs(5)).await;
             }
-            tokio::time::sleep(Duration::from_secs(5)).await;
+        }));
+    }
+
+    // Wait for all tasks to complete
+    for task in tasks {
+        if let Err(e) = task.await {
+            eprintln!("Task panicked: {:?}", e);
         }
     }
-    results
+
+    Arc::try_unwrap(results).unwrap().into_inner().unwrap()
 }
