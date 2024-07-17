@@ -18,6 +18,8 @@ pub fn scrape_page(url: String) -> Result<String> {
     tab.wait_until_navigated()
         .map_err(|e| anyhow!("Failed to wait for navigation: {}", e))?;
 
+    // std::thread::sleep(Duration::from_secs(10));
+
     let content = tab
         .find_element("body")
         .map_err(|e| anyhow!("Failed to find body element: {}", e))?
@@ -62,4 +64,15 @@ pub async fn scrape_multiple_pages(urls: Vec<String>) -> Vec<String> {
     }
 
     Arc::try_unwrap(results).unwrap().into_inner().unwrap()
+}
+
+pub fn seq_scrape_multiple_pages(urls: Vec<String>) -> Vec<String> {
+    let mut results = Vec::new();
+    for url in urls {
+        match scrape_page(url.clone()) {
+            Ok(content) => results.push(content),
+            Err(e) => eprintln!("Error scraping page: {:?}", e),
+        }
+    }
+    results
 }
