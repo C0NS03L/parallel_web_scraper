@@ -1,6 +1,7 @@
 use crate::processor::Item;
 use serde_json::json;
 
+#[allow(dead_code)]
 pub fn format_data(items: Vec<Item>) -> String {
     let json_items: Vec<serde_json::Value> = items
         .iter()

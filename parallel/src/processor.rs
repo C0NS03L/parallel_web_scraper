@@ -1,8 +1,6 @@
 use anyhow::Result;
 use rayon::prelude::*;
 use scraper::{Html, Selector};
-
-use crate::scraper::scrape_page;
 pub struct Item {
     pub name: String,
     pub link: String,

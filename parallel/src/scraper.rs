@@ -66,6 +66,8 @@ pub async fn scrape_multiple_pages(urls: Vec<String>) -> Vec<String> {
     Arc::try_unwrap(results).unwrap().into_inner().unwrap()
 }
 
+//allow dead code
+#[allow(dead_code)]
 pub fn seq_scrape_multiple_pages(urls: Vec<String>) -> Vec<String> {
     let mut results = Vec::new();
     for url in urls {
